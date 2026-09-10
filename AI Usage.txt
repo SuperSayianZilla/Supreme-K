@@ -1,0 +1,6 @@
+AI usage:
+
+AI was used to assist in creating all LUA scripts in the script folder used in SupremeK and then further modified and tested by me.
+AI was also used to assist in debugging scripts faster.
+
+LLM used: Chat-GPT 5.6
