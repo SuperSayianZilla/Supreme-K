@@ -1,0 +1,98 @@
+return { platesiege = {
+  name                          = [[Siegebot Plate]],
+  description                   = [[Parallel Unit Production]],
+  buildDistance                 = Shared.FACTORY_PLATE_RANGE,
+  builder                       = true,
+  buildingGroundDecalDecaySpeed = 30,
+  buildingGroundDecalSizeX      = 11,
+  buildingGroundDecalSizeY      = 11,
+  buildingGroundDecalType       = [[platetank_aoplane.dds]],
+
+  buildoptions                  = {
+    [[siegecon]],
+	[[siegescout]],
+    [[siegeraid]],
+    [[siegeskirm]],
+	-- [[siegesupport]],
+    [[siegeassault]],
+    [[siegebomb]],
+    [[siegestrider]],
+    [[siegeaa]],
+	[[siegepw]],
+	[[siegeriot]],
+	[[siegemega]],
+  },
+
+  buildPic                      = [[platetank.png]],
+  canMove                       = true,
+  canPatrol                     = true,
+  category                      = [[SINK UNARMED]],
+  corpse                        = [[DEAD]],
+  collisionVolumeOffsets        = [[0 10 4]],
+  collisionVolumeScales         = [[72 24 38]],
+  collisionVolumeType           = [[box]],
+  selectionVolumeOffsets        = [[0 2 35]],
+  selectionVolumeScales         = [[80 40 120]],
+  selectionVolumeType           = [[box]],
+
+  customParams                  = {
+    sortName           = [[6]],
+    solid_factory      = [[4]],
+    default_spacing    = 4,
+    aimposoffset       = [[0 10 -35]],
+    midposoffset       = [[0 0 -35]],
+    modelradius        = [[50]],
+    unstick_help       = 1,
+    child_of_factory   = [[factorysiege]],
+    buggeroff_offset   = 45,
+    normaltex = [[unittextures/atlas_normal.dds]],
+
+    outline_x = 165,
+    outline_y = 165,
+    outline_yoff = 27.5,
+  },
+
+  explodeAs                     = [[FAC_PLATEEX]],
+  footprintX                    = 6,
+  footprintZ                    = 8,
+  health                        = Shared.FACTORY_PLATE_HEALTH,
+  iconType                      = "platesiege",
+  levelGround                   = false,
+  maxSlope                      = 15,
+  maxWaterDepth                 = 0,
+  metalCost                     = Shared.FACTORY_PLATE_COST,
+  moveState                     = 1,
+  noAutoFire                    = false,
+  objectName                    = [[leglab.s3o]],
+  script                        = [[platesiege.lua]],
+  selfDestructAs                = [[FAC_PLATEEX]],
+  showNanoSpray                 = false,
+  sightDistance                 = 273,
+  useBuildingGroundDecal        = true,
+  workerTime                    = Shared.FACTORY_BUILDPOWER,
+  yardMap                       = "oooooo oooooo oooooo oooooo uuuuuu uuuuuu uuuuuu uuuuuu",
+
+  featureDefs                   = {
+
+    DEAD = {
+      blocking         = true,
+      featureDead      = [[HEAP]],
+      footprintX       = 6,
+      footprintZ       = 8,
+      object           = [[leglab_dead.s3o]],
+      collisionVolumeOffsets = [[0 14 -34]],
+      collisionVolumeScales  = [[110 28 44]],
+      collisionVolumeType    = [[box]],
+    },
+
+
+    HEAP = {
+      blocking         = false,
+      footprintX       = 6,
+      footprintZ       = 8,
+      object           = [[debris4x4a.s3o]],
+    },
+
+  },
+
+} }

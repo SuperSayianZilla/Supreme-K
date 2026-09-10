@@ -1,0 +1,135 @@
+return { shieldskirm = {
+  name                   = [[Rogue]],
+  description            = [[Skirmisher Bot (Indirect Fire)]],
+  acceleration           = 0.75,
+  brakeRate              = 1.2,
+  buildPic               = [[shieldskirm.png]],
+  canGuard               = true,
+  canMove                = true,
+  canPatrol              = true,
+  category               = [[LAND]],
+  collisionVolumeOffsets = [[0 -8 0]],
+  collisionVolumeScales  = [[28 42 28]],
+  collisionVolumeType    = [[cylY]],
+  corpse                 = [[DEAD]],
+
+  customParams           = {
+    aim_lookahead  = 120,
+    aimposoffset   = [[0 5 0]],
+    midposoffset   = [[0 5 0]],
+    modelradius    = [[14]],
+    bait_level_default = 0,
+	normaltex = [[unittextures/stormnormal.dds]],
+  },
+
+  explodeAs              = [[BIG_UNITEX]],
+  footprintX             = 2,
+  footprintZ             = 2,
+  health                 = 520,
+  iconType               = [[walkerskirm]],
+  leaveTracks            = true,
+  maxSlope               = 36,
+  maxWaterDepth          = 22,
+  metalCost              = 125,
+  movementClass          = [[KBOT2]],
+  noChaseCategory        = [[TERRAFORM FIXEDWING GUNSHIP SUB]],
+  objectName             = [[storm.s3o]],
+  script                 = [[shieldskirm.lua]],
+  selfDestructAs         = [[BIG_UNITEX]],
+
+  sfxtypes               = {
+
+    explosiongenerators = {
+      [[custom:STORMMUZZLE]],
+      [[custom:STORMBACK]],
+    },
+
+  },
+
+  sightDistance          = 583,
+  speed                  = 54,
+  trackOffset            = 0,
+  trackStrength          = 8,
+  trackStretch           = 1,
+  trackType              = [[ComTrack]],
+  trackWidth             = 22,
+  turnRate               = 2030,
+  upright                = true,
+
+  weapons                = {
+
+    {
+      def                = [[STORM_ROCKET]],
+      accurateLeading    = 1,
+      onlyTargetCategory = [[SWIM LAND SINK TURRET FLOAT SHIP HOVER]],
+    },
+
+  },
+
+  weaponDefs             = {
+
+    STORM_ROCKET = {
+      name                    = [[Heavy Rocket]],
+      areaOfEffect            = 75,
+      cegTag                  = [[rocket_trail_bar_flameboosted]],
+      craterBoost             = 1,
+      craterMult              = 2,
+
+      customParams        = {
+        burst = Shared.BURST_RELIABLE,
+
+        light_camera_height = 1800,
+        light_radius = 80,
+      },
+      
+      damage                  = {
+        default = 330,
+        planes  = 330,
+      },
+
+      fireStarter             = 70,
+      flightTime              = 3.5,
+      impulseBoost            = 0,
+      impulseFactor           = 0.4,
+      interceptedByShieldType = 2,
+      model                   = [[wep_m_hailstorm.s3o]],
+      noSelfDamage            = true,
+      predictBoost            = 0.75,
+      range                   = 530,
+      reloadtime              = 7,
+      smokeTrail              = false,
+      soundHit                = [[explosion/ex_med4]],
+      soundHitVolume          = 8,
+      soundStart              = [[weapon/missile/missile2_fire_bass]],
+      soundStartVolume        = 7,
+      startVelocity           = 190,
+      tracks                  = false,
+      trajectoryHeight        = 0.6,
+      turnrate                = 1000,
+      turret                  = true,
+      weaponType              = [[MissileLauncher]],
+      weaponVelocity          = 190,
+    },
+
+  },
+
+  featureDefs            = {
+
+    DEAD  = {
+      blocking         = true,
+      featureDead      = [[HEAP]],
+      footprintX       = 2,
+      footprintZ       = 2,
+      object           = [[storm_dead.s3o]],
+    },
+
+    HEAP  = {
+      blocking         = false,
+      footprintX       = 2,
+      footprintZ       = 2,
+      object           = [[debris2x2c.s3o]],
+    },
+
+  },
+
+} }
