@@ -1,0 +1,196 @@
+include 'constants.lua'
+
+local base = piece 'base'
+local head = piece 'head'
+local l_gun = piece 'l_gun'
+local l_gun_barr = piece 'l_gun_barr'
+local r_gun = piece 'r_gun'
+local r_gun_barr = piece 'r_gun_barr'
+local l_thigh, l_leg, l_foot = piece('l_thigh', 'l_leg', 'l_foot')
+local r_thigh, r_leg, r_foot = piece('r_thigh', 'r_leg', 'r_foot')
+local leftLeg = { thigh=piece 'l_thigh', shin=piece'l_leg', foot=piece'l_foot' }
+local rightLeg = { thigh=piece 'r_thigh', shin=piece'r_leg', foot=piece'r_foot' }
+
+-- constants
+local smokePiece = {head}
+
+-- signals
+local SIG_WALK = 1
+local SIG_AIM = 2
+local SIG_RESTORE = 4
+
+-- variables
+local gun_1
+local BASE_SPEED = 1.3 * (UnitDefs[unitDefID].speed / 90)
+
+local function Step(front, back)
+	local speed = math.max(0.05, GG.att_MoveChange[unitID] or 1)
+	local stepMult = BASE_SPEED * speed
+	Move(back.shin, z_axis, 1.7, 12 * stepMult) --down
+	Move(front.shin, z_axis, -1.5, 12 * stepMult) --up
+	Move(base, y_axis, -0.5, 13 * stepMult)
+	Move(base, z_axis, 0.5, 5 * stepMult)
+	Turn(front.foot, x_axis, math.rad(40), math.rad(260) * stepMult)
+	Sleep(133 / math.max(0.5, speed))
+
+	Turn(back.thigh, x_axis, math.rad(90), math.rad(200) * stepMult) --back
+	Turn(front.thigh, x_axis, math.rad(20), math.rad(200) * stepMult) --forward
+	Turn(back.foot, x_axis, math.rad(10), math.rad(250) * stepMult)
+	Move(base, y_axis, 1.5, 15 * stepMult)
+	Move(base, z_axis, -1.5, 8 * stepMult)
+	
+	if front == leftLeg then
+		Turn(base, z_axis, math.rad(8), math.rad(30) * stepMult)
+	else
+		Turn(base, z_axis, math.rad(-8), math.rad(30) * stepMult)
+	end
+	
+	Sleep(166 / math.max(0.5, speed))
+end
+
+local function Walk()
+	Signal(SIG_WALK)
+	SetSignalMask(SIG_WALK)
+
+	while true do
+		Step(leftLeg, rightLeg)
+		Step(rightLeg, leftLeg)
+	end
+end
+
+function script.Create()
+	gun_1 = true
+	StartThread(GG.Script.SmokeUnit, unitID, smokePiece)
+	Turn(rightLeg.thigh, x_axis, math.rad(60))
+	Turn(leftLeg.thigh, x_axis, math.rad(60))
+	
+	Move(rightLeg.shin, z_axis, 0)
+	Move(leftLeg.shin, z_axis, 0)
+	
+	Turn(rightLeg.foot, x_axis, math.rad(30))
+	Turn(leftLeg.foot, x_axis, math.rad(30))
+end
+
+local function Stopping()
+	Signal(SIG_WALK)
+	SetSignalMask(SIG_WALK)
+	
+	Turn(rightLeg.thigh, x_axis, math.rad(60), math.rad(200))
+	Turn(leftLeg.thigh, x_axis, math.rad(60), math.rad(200))
+				
+	Move(rightLeg.shin, z_axis, 0, 200)
+	Move(leftLeg.shin, z_axis, 0, 200)
+	
+	Turn(rightLeg.foot, x_axis, math.rad(30), math.rad(200))
+	Turn(leftLeg.foot, x_axis, math.rad(30), math.rad(200))
+	
+	Move(base, y_axis, 0, 200)
+	Move(base, z_axis, 0, 200)
+	Turn(base, z_axis, 0, math.rad(200))
+end
+
+function script.StartMoving()
+	StartThread(Walk)
+end
+
+function script.StopMoving()
+	StartThread(Stopping)
+end
+
+local function RestoreAfterDelay()
+	Signal(SIG_RESTORE)
+	SetSignalMask(SIG_RESTORE)
+	Sleep(2750)
+	Spin(r_gun_barr, z_axis, 0, math.rad(35))
+	Spin(l_gun_barr, z_axis, 0, math.rad(35))
+	Turn(head, y_axis, 0, math.rad(90))
+	Turn(r_gun, x_axis, 0, math.rad(45))
+	Turn(l_gun, x_axis, 0, math.rad(45))
+end
+
+function script.AimFromWeapon()
+	return head
+end
+
+function script.QueryWeapon(num)
+	if gun_1 then
+		return r_gun_barr
+	else
+		return l_gun_barr
+	end
+end
+
+function script.AimWeapon(num, heading, pitch)
+	Signal(SIG_AIM)
+	SetSignalMask(SIG_AIM)
+
+	Turn(head, y_axis, heading, math.rad(500))
+	Turn(l_gun, x_axis, -pitch, math.rad(300))
+	Turn(r_gun, x_axis, -pitch, math.rad(300))
+	WaitForTurn(head, y_axis)
+	WaitForTurn(l_gun, x_axis)
+	WaitForTurn(r_gun, x_axis)
+	return true
+end
+
+function script.FireWeapon(num)
+	if gun_1 then
+		EmitSfx(r_gun_barr, GG.Script.UNIT_SFX1)
+		Spin(r_gun_barr, z_axis, math.rad(1000), math.rad(50))
+	else
+		EmitSfx(l_gun_barr, GG.Script.UNIT_SFX1)
+		Spin(l_gun_barr, z_axis, math.rad(1000), math.rad(50))
+	end
+	StartThread(RestoreAfterDelay)
+end
+
+function script.EndBurst(num)
+	gun_1 = not gun_1
+end
+
+function script.Killed(recentDamage, maxHealth)
+	local severity = recentDamage/maxHealth
+	if severity <= 0.25 then
+		Explode(head, SFX.NONE)
+		Explode(l_gun_barr, SFX.NONE)
+		Explode(l_gun, SFX.NONE)
+		Explode(r_gun_barr, SFX.NONE)
+		Explode(r_gun, SFX.NONE)
+		Explode(leftLeg.thigh, SFX.NONE)
+		Explode(leftLeg.shin, SFX.NONE)
+		Explode(leftLeg.foot, SFX.NONE)
+		Explode(rightLeg.thigh, SFX.NONE)
+		Explode(rightLeg.shin, SFX.NONE)
+		Explode(rightLeg.foot, SFX.NONE)
+		Explode(base, SFX.NONE)
+		return 1
+	elseif severity <= 0.50 then
+		Explode(head, SFX.FALL)
+		Explode(r_gun, SFX.FALL)
+		Explode(l_gun, SFX.FALL)
+		Explode(l_gun_barr, SFX.FALL)
+		Explode(r_gun_barr, SFX.FALL)
+		Explode(leftLeg.thigh, SFX.FALL)
+		Explode(leftLeg.shin, SFX.FALL)
+		Explode(leftLeg.foot, SFX.FALL)
+		Explode(rightLeg.thigh, SFX.FALL)
+		Explode(rightLeg.shin, SFX.FALL)
+		Explode(rightLeg.foot, SFX.FALL)
+		Explode(base, SFX.SHATTER)
+		return 1
+	else
+		Explode(r_gun, SFX.SHATTER)
+		Explode(l_gun, SFX.SHATTER)
+		Explode(r_gun_barr, SFX.SHATTER)
+		Explode(l_gun_barr, SFX.SHATTER)
+		Explode(leftLeg.foot, SFX.SHATTER)
+		Explode(leftLeg.shin, SFX.SHATTER)
+		Explode(leftLeg.thigh, SFX.SHATTER)
+		Explode(rightLeg.foot, SFX.SHATTER)
+		Explode(rightLeg.shin, SFX.SHATTER)
+		Explode(rightLeg.thigh, SFX.SHATTER)
+		Explode(base, SFX.FALL + SFX.SMOKE + SFX.FIRE + SFX.EXPLODE_ON_HIT)
+		Explode(head, SFX.FALL + SFX.SMOKE + SFX.SMOKE + SFX.EXPLODE_ON_HIT)
+		return 2
+	end
+end
